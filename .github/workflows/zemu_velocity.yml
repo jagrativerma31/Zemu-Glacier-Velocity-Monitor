@@ -1,0 +1,62 @@
+name: Zemu Glacier Velocity Monitor
+on:
+  workflow_dispatch: # This allows you to start it manually whenever you want
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.MATRIX_PARAMS_COMBINATIONS }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          cache-environment: true
+      - id: set-matrix
+        run: python search_images.py 10 09 11 2 
+        # Above: 10% cloud, Sept to Nov (Post-monsoon is best for Zemu), 2 pairs
+
+  process:
+    needs: search
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.search.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+      - name: Run Correlation
+        run: python calculate_velocity.py ${{ matrix.img1_product_name }} ${{ matrix.img2_product_name }}
+      - name: Upload Intermediate Tifs
+        uses: actions/upload-artifact@v4
+        with:
+          name: velocity-tifs-${{ matrix.name }}
+          path: "*.tif"
+
+  summarize:
+    needs: process
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+      - name: Download All Tifs
+        uses: actions/download-artifact@v4
+        with:
+          path: glacier_image_correlation
+          pattern: velocity-tifs-*
+          merge-multiple: true
+      - name: Generate Stats and Plots
+        run: python summary_stats.py
+      - name: Upload Final Analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zemu-Final-Results
+          path: glacier_image_correlation/velocity_summary_statistics.png
