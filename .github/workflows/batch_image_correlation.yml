@@ -47,7 +47,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           cache-environment: true
-          environment-file: glacier_image_correlation/environment.yml
+          environment-file: environment.yml
 
       - name: Search aws for S2 Imagery
         id: S2_search
