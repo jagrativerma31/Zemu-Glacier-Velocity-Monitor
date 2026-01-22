@@ -7,37 +7,40 @@ on:
   workflow_call:
 
 jobs:
-    summary_statistics:
-        name: summary_statistics
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                shell: bash -el {0}
+  summary_statistics:
+    name: summary_statistics
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-            - name: Install Conda environment with Micromamba
-              uses: mamba-org/setup-micromamba@v1
-              with:
-                cache-environment: true
-                environment-file: glacier_image_correlation/environment.yml
-                environment-name: image-correlation
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          cache-environment: true
+          # Fixed path: pointed to root directory
+          environment-file: environment.yml
+          environment-name: image-correlation
 
-            - name: Download Velocity Map Artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  path: glacier_image_correlation/
-                  merge-multiple: true
+      - name: Download Velocity Map Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # Fixed path: artifacts downloaded to the main folder where script expects them
+          path: .
+          merge-multiple: true
                 
-            - name: Compute Summary Statistics
-              run: |
-                python glacier_image_correlation/summary_statistics.py
+      - name: Compute Summary Statistics
+        # Added explicit shell call here to ensure environment is active
+        shell: bash -el {0}
+        run: |
+          # Fixed path: running script from the root folder
+          python summary_statistics.py
 
-            - name: Upload Summary Statistics Figure as Artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: summary_statistics
-                path: |
-                    glacier_image_correlation/velocity_summary_statistics.png
+      - name: Upload Summary Statistics Figure as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary_statistics
+          path: |
+            # Fixed path: looking for the output image in the root folder
+            velocity_summary_statistics.png
