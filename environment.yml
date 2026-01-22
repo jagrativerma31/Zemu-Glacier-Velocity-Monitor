@@ -1,17 +1,15 @@
-name: glacier-env
+name: image-correlation
 channels:
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.10
-  - xarray
-  - dask
-  - netcdf4
-  - bottleneck
-  - pystac-client
-  - stackstac
   - rioxarray
   - geopandas
-  - seaborn
-  - autorift
-  - opencv
   - matplotlib
+  - ipykernel
+  - seaborn
+  - netcdf4
+  - autorift
+  - pystac-client
+  - stackstac
+  - dask
