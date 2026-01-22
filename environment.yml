@@ -1,0 +1,17 @@
+name: glacier-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - xarray
+  - dask
+  - netcdf4
+  - bottleneck
+  - pystac-client
+  - stackstac
+  - rioxarray
+  - geopandas
+  - seaborn
+  - autorift
+  - opencv
+  - matplotlib
