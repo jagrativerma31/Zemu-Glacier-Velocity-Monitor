@@ -1,0 +1,26 @@
+name: image_correlation_pair
+on:
+  workflow_call:
+    inputs:
+      img1_product_name:
+        type: string
+      img2_product_name:
+        type: string
+      workflow_name:
+        type: string
+
+jobs:
+  autoRIFT:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+      - name: Run autoRIFT
+        shell: bash -el {0}
+        run: python image_correlation.py ${{ inputs.img1_product_name }} ${{ inputs.img2_product_name }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.workflow_name }}
+          path: S2*horizontal_velocity.tif
