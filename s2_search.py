@@ -41,15 +41,21 @@ def main():
     )
     
     items = search.item_collection()
-    sentinel2_stack = stackstac.stack(items)
+   # Check how many items were returned
+    items = search.item_collection()
+    print(f"Returned {len(items)} Items")
     
-    # Filter by user-defined month range
-    stack_filtered = sentinel2_stack.where(
+    # FIX: Explicitly set EPSG:32645 for the Sikkim/Zemu region to avoid metadata errors
+    sentinel2_stack = stackstac.stack(items, epsg=32645)
+    
+    # filter to specified month range
+    sentinel2_stack_snowoff = sentinel2_stack.where(
         (sentinel2_stack.time.dt.month >= int(args.start_month)) & 
         (sentinel2_stack.time.dt.month <= int(args.stop_month)), 
         drop=True
     )
     
+   
     period_index = pd.PeriodIndex(stack_filtered['time'].values, freq='M')
     stack_filtered.coords['year_month'] = ('time', period_index)
     first_image_indices = stack_filtered.groupby('year_month').apply(lambda x: x.isel(time=0))
