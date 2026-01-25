@@ -1,0 +1,16 @@
+name: image-correlation
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - rioxarray
+  - geopandas
+  - matplotlib
+  - ipykernel
+  - seaborn
+  - netcdf4
+  - autorift
+  - pystac-client
+  - stackstac
+  - dask
